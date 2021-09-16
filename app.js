@@ -28,24 +28,45 @@ app.use(function (req, res, next) {
 
 MongoClient.connect(url,(e,client)=>{
   console.log('mongoDB connect.')
-  
-  app.get('/data',(req,res)=>{
-    console.log(req.query)
+  var db = client.db('caseup')
+  app.get('/upload',(req,res)=>{
+
     const post = req.query
-    const db = client.db('caseup')
     db.collection('posts').insertOne(post)
   })
 
+  app.get('/update',(req,res)=>{
+    req.query_id =  new mongodb.ObjectId(req.query._id)
+    db.collection('posts').updateOne({ _id : req.query_id},{
+      $set:{
+        status : req.query.status,
+        title : req.query.title,
+        decision : req.query.decision,
+        context : req.query.context,
+        date : req.query.date,
+        imgUrl : req.query.imgUrl
+      }
+    })
+    .then(obj=>{
+      console.log(obj)
+    })
+  })
+
   app.get('/getPosts',(req,res)=>{
-    const db = client.db('caseup')
-    var result
-    db.collection('posts').find({}).toArray((err,docs) =>{
+    db.collection('posts').find(req.query).toArray((err,docs) =>{
       res.send(docs)
     })
   })
 
+  app.get('/delete',(req,res)=>{
+    console.log(req.query)
+    db.collection('posts').deleteOne({_id : new mongodb.ObjectId(req.query._id)},(err,docs)=>{
+      console.log('삭제완료')
+      res.send(true)
+    })
+  })
+
   app.get('/signUp',(req,res)=>{
-    const db = client.db('caseup')
     console.log(req.query)
     db.collection('userInfo').find({userId : req.query.userId}).toArray((err,docs)=>{
       
@@ -54,20 +75,31 @@ MongoClient.connect(url,(e,client)=>{
       }
       else{
         db.collection('userInfo').insertOne(req.query)
-        res.cookie('userId',req.query.userId,{maxAge:3000})
+        // res.cookie('userId',req.query.userId,{maxAge:3000})
         res.send(true)
       }
     })
   })
 
+  app.get('/commentInsert',(req,res)=>{
+    db.collection('comments').insertOne(req.query)
+  })
+
+  app.get('/comment',(req,res)=>{
+    console.log(req.query)
+    db.collection('comments').find({parentId : req.query.parentId}).toArray((err,docs)=>{
+      console.log(docs)
+      res.send(docs)
+    })
+  })
+
   app.get('/signIn',(req,res) => {
-    const db = client.db('caseup')
     db.collection('userInfo').find(req.query).toArray((err,docs)=>{
       console.log(req.query)
       if(docs.length == 0)
         res.send(false)
       else
-        res.send(true)
+        res.send(docs)
     })
   })
 
