@@ -5,6 +5,23 @@ const app = express()
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
 const url = `mongodb+srv://hyperlogic:6408@healthcare.s6oc1.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
+
+
+
+
+var mysql      = require('mysql');
+
+var connection = mysql.createConnection({
+  host     : 'a4db.cxoldwqckoj4.ap-northeast-2.rds.amazonaws.com',
+  user     : 'a4',
+  password : '123456789',
+  database : 'a4db'
+});
+  
+connection.connect();
+
+
+
 // const bodyParser = require('body-parser')
 app.use(function (req, res, next) {
 
@@ -24,10 +41,33 @@ app.use(function (req, res, next) {
   // Pass to next layer of middleware
   next();
 });
-// app.use(bodyParser)
+
+var session = require('express-session');
+var RedisStore = require('connect-redis')(session);
+
+var Redis = require('ioredis');
+var redisClient = new Redis({port: 6379, host: 'cluster-example.hqrloz.0001.apn2.cache.amazonaws.com'});
+
+app.use(session({
+    secret: 'redis-session-test',
+    store: new RedisStore({client: redisClient}),
+    resave: false,
+    saveUninitialized: true
+}));
+
+app.get('/session', function (req, res) {
+    var session = req.session;
+    console.log(session.user);
+    if (session.user) {
+        res.send('session already saved. user = ' + session.user);
+    } else {
+        session.user = 'test';
+        res.send('session saved');
+    }
+});
+
 
 MongoClient.connect(url,(e,client)=>{
-  console.log('mongoDB connect.')
   var db = client.db('caseup')
   app.get('/upload',(req,res)=>{
 
