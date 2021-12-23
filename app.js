@@ -44,36 +44,6 @@ app.use(function (req, res, next) {
   next();
 });
 
-// var session = require('express-session');
-// var RedisStore = require('connect-redis')(session);
-
-// var Redis = require('ioredis');
-// var redisClient = new Redis({port: 6379, host: 'cluster-example.hqrloz.0001.apn2.cache.amazonaws.com'});
-
-// app.use(session({
-//     secret: 'redis-session-test',
-//     store: new RedisStore({client: redisClient}),
-//     resave: false,
-//     saveUninitialized: true
-// }));
-
-// app.get('/session', function (req, res) {
-//     var session = req.session;
-//     console.log(session.user);
-//     if (session.user) {
-//         res.send({
-//           msg :'session already saved. user = ' + session.user,
-//           bool : true
-//       });
-//     } else {
-//         session.user = 'test';
-//         res.send({
-//           msg : 'session saved',
-//           bool : false
-//         });
-        
-//     }
-// });
 
 
 MongoClient.connect(url,(e,client)=>{
@@ -155,5 +125,44 @@ MongoClient.connect(url,(e,client)=>{
 
 
 })
+var session = require('express-session');
+var RedisStore = require('connect-redis')(session);
 
+var redis = require('redis');
+var redisClient = redis.createClient(
+  {
+    port: 6379, 
+    host: 'cluster-example.hqrloz.0001.apn2.cache.amazonaws.com'
+  }
+);
+redisClient.on('error', function (err) {
+  console.log('Could not establish a connection with redis. ' + err);
+});
+redisClient.on('connect', function (err) {
+  console.log('Connected to redis successfully');
+});
+app.use(session({
+    secret: 'redis-session-test',
+    store: new RedisStore({client: redisClient}),
+    resave: false,
+    saveUninitialized: true
+}));
+
+app.get('/session', function (req, res) {
+    var session = req.session;
+    console.log(session.user);
+    if (session.user) {
+        res.send({
+          msg :'session already saved. user = ' + session.user,
+          bool : true
+      });
+    } else {
+        session.user = 'test';
+        res.send({
+          msg : 'session saved',
+          bool : false
+        });
+        
+    }
+});           
 app.listen(8100)
