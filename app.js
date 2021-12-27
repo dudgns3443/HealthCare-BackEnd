@@ -125,44 +125,49 @@ MongoClient.connect(url,(e,client)=>{
 
 
 })
-var session = require('express-session');
-var RedisStore = require('connect-redis')(session);
+// var session = require('express-session');
+// var RedisStore = require('connect-redis')(session);
 
-var redis = require('redis');
-var redisClient = redis.createClient(
-  {
-    port: 6379, 
-    host: 'cluster-example.hqrloz.0001.apn2.cache.amazonaws.com'
-  }
-);
-redisClient.on('error', function (err) {
-  console.log('Could not establish a connection with redis. ' + err);
-});
-redisClient.on('connect', function (err) {
-  console.log('Connected to redis successfully');
-});
-app.use(session({
-    secret: 'redis-session-test',
-    store: new RedisStore({client: redisClient}),
-    resave: false,
-    saveUninitialized: true
-}));
+// var redis = require('redis');
+// var redisClient = redis.createClient(
+//   {
+//     port: 6379, 
+//     host: 'cluster-example.hqrloz.0001.apn2.cache.amazonaws.com'
+//   }
+// );
+// (async () => {
+// redisClient.on('error', function (err) {
+//   console.log('Could not establish a connection with redis. ' + err);
+// });
+// redisClient.on('connect', function (err) {
+//   console.log('Connected to redis successfully');
+// });
+// await redisClient.connect();
+// })();
+// app.use(session({
+//     secret: 'redis-session-test',
+//     store: new RedisStore({client: redisClient}),
+//     resave: false,
+//     saveUninitialized: true
+// }));
 
-app.get('/session', function (req, res) {
-    var session = req.session;
-    console.log(session.user);
-    if (session.user) {
-        res.send({
-          msg :'session already saved. user = ' + session.user,
-          bool : true
-      });
-    } else {
-        session.user = 'test';
-        res.send({
-          msg : 'session saved',
-          bool : false
-        });
+// app.get('/session', function (req, res) {
+//   try{
+//     var session = req.session;
+//     console.log(session.user);
+//     if (session.user) {
+//         res.send({
+//           msg :'session already saved. user = ' + session.user,
+//           bool : true
+//       });
+//     } else {
+//         session.user = 'test';
+//         res.send({
+//           msg : 'session saved',
+//           bool : false
+//         });
         
-    }
-});           
+//     }
+//   } catch (err){ next(err)}
+// });           
 app.listen(8100)
