@@ -120,52 +120,5 @@ MongoClient.connect(url,(e,client)=>{
   })
 
 })
-var redis = require('redis');
-(async () => {
-    const url = `redis://cluster-example.hqrloz.0001.apn2.cache.amazonaws.com:6379`;
-    var session = require('express-session');
-    var RedisStore = require('connect-redis')(session);
-
-    const redisClient = redis.createClient(
-    {
-        url
-    }
-    );
-    redisClient.on('error', function (err) {
-    console.log('Could not establish a connection with redis. ' + err);
-    });
-    redisClient.on('connect', function (err) {
-    console.log('Connected to redis successfully');
-    });
-    await redisClient.connect();
-    app.use(session({
-        secret: 'redis-session-test',
-        store: new RedisStore({client: redisClient}),
-        resave: false,
-        saveUninitialized: true
-    }));
-    
-    app.get('/session', function (req, res) {
-      try{
-        var session = req.session;
-        console.log(session.user);
-        if (session.user) {
-            res.send({
-              msg :'session already saved. user = ' + session.user,
-              bool : true
-          });
-        } else {
-            session.user = 'test';
-            res.send({
-              msg : 'session saved',
-              bool : false
-            });
-            
-        }
-      } catch (err){ next(err)}
-    });  
-    
-
-})();
 
 app.listen(8100)
