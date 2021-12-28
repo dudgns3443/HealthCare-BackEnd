@@ -6,29 +6,19 @@ const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
 const url = `mongodb+srv://hyperlogic:6408@healthcare.s6oc1.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
 
-var AWS = require("aws-sdk");
-
 var mysql      = require('mysql');
-var ssm = new AWS.SSM();
-var params = {
-  Names: [ 
-    '/a4db/rds/master.username',
-    '/a4db/rds/master.userpasswd',
-  ]
-};
-ssm.getParameters(params, function(err, data) {
 
-  var connection = mysql.createConnection({
-    host     : 'a4db.cxoldwqckoj4.ap-northeast-2.rds.amazonaws.com',
-    user     : data.a4db/rds/master.username,
-    password : data.a4db/rds/master.userpasswd,
-    database : 'a4db'
-  });
-    
-  connection.connect(()=>{
-    console.log('db connetion seccess')
-  });          // successful response
+var connection = mysql.createConnection({
+  host     : 'a4db.cxoldwqckoj4.ap-northeast-2.rds.amazonaws.com',
+  user     : 'a4',
+  password : '123456789',
+  database : 'a4db'
 });
+  
+connection.connect(()=>{
+  console.log('db connetion seccess')
+});
+
 
 // const bodyParser = require('body-parser')
 app.use(function (req, res, next) {
